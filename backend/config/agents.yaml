@@ -1,0 +1,71 @@
+# CrewAI Agent Definitions
+# All agent definitions are externalized here per AAMAD CrewAI adapter rules.
+# Do NOT inline agent definitions in crew.py.
+# Values below are skeletons — full role/goal/backstory content is added by @backend.eng in Epic 2.
+# Runtime: AAMAD_TARGET_RUNTIME=crewai | Process: sequential | Memory: false (all agents)
+
+jd_parser:
+  role: "Job Description Analyst"
+  goal: >
+    # TODO (@backend.eng): Fill in full goal from PRD Section 3 / Agent 1 definition
+    Parse raw job description text into structured search criteria JSON.
+  backstory: >
+    # TODO (@backend.eng): Fill in full backstory from PRD Section 3 / Agent 1 definition
+    Senior talent acquisition specialist with deep experience translating JDs into search criteria.
+  tools: []
+  memory: false
+  allow_delegation: false
+  verbose: true
+  llm: claude-sonnet-4-6
+  temperature: 0.2
+  max_iter: 5
+
+linkedin_sourcer:
+  role: "LinkedIn Candidate Sourcer"
+  goal: >
+    # TODO (@backend.eng): Fill in full goal from PRD Section 3 / Agent 2 definition
+    Search LinkedIn Recruiter for candidate profiles matching structured search criteria.
+  backstory: >
+    # TODO (@backend.eng): Fill in full backstory from PRD Section 3 / Agent 2 definition
+    Technical sourcing specialist using browser automation to search LinkedIn at scale.
+  tools:
+    - linkedin_selenium_tool
+  memory: false
+  allow_delegation: false
+  verbose: true
+  llm: claude-sonnet-4-6
+  temperature: 0.1
+  max_iter: 10
+
+candidate_evaluator:
+  role: "Candidate Evaluation Specialist"
+  goal: >
+    # TODO (@backend.eng): Fill in full goal from PRD Section 3 / Agent 3 definition
+    Score each candidate profile against JD criteria and produce per-criterion rationale.
+  backstory: >
+    # TODO (@backend.eng): Fill in full backstory from PRD Section 3 / Agent 3 definition
+    Senior technical recruiter and talent assessor with expertise in structured candidate evaluation.
+  tools: []
+  memory: false
+  allow_delegation: false
+  verbose: true
+  llm: claude-sonnet-4-6
+  temperature: 0.1
+  max_iter: 8
+
+shortlist_formatter:
+  role: "Shortlist Document Author"
+  goal: >
+    # TODO (@backend.eng): Fill in full goal from PRD Section 3 / Agent 4 definition
+    Assemble ranked Markdown shortlist document following the required heading structure.
+  backstory: >
+    # TODO (@backend.eng): Fill in full backstory from PRD Section 3 / Agent 4 definition
+    Technical writer and recruiting operations specialist focused on clear, complete shortlist output.
+  tools:
+    - file_write_tool
+  memory: false
+  allow_delegation: false
+  verbose: true
+  llm: claude-sonnet-4-6
+  temperature: 0.1
+  max_iter: 3

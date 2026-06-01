@@ -1,0 +1,93 @@
+# CrewAI Task Definitions
+# All task definitions are externalized here per AAMAD CrewAI adapter rules.
+# Do NOT inline task definitions in crew.py.
+# Values below are skeletons — full description/expected_output content is added by @backend.eng in Epic 2.
+# Task.id and output_file are required for all tasks per adapter traceability rules.
+# max_iter must be <= 12 for all tasks per adapter rules.
+
+parse_jd:
+  # Task ID: parse_jd
+  # Agent: jd_parser
+  # Context: none — receives raw JD from crew kickoff input
+  description: >
+    # TODO (@backend.eng): Fill in full task description from PRD Section 3 / Task parse_jd
+    Parse the provided job description text into a structured JSON object containing
+    required_skills, preferred_skills, experience_min_years, experience_max_years,
+    seniority_level, role_title_keywords, location, location_remote_ok,
+    must_have_conditions, and disqualifying_conditions.
+  expected_output: >
+    # TODO (@backend.eng): Fill in full expected_output from PRD Section 3 / Task parse_jd
+    A valid JSON object with all specified fields. No markdown fences, no prose.
+    Output saved to: output/parse_jd.json
+  agent: jd_parser
+  output_file: output/parse_jd.json
+  max_iter: 5
+  max_execution_time: 120
+  max_retry_limit: 2
+
+source_candidates:
+  # Task ID: source_candidates
+  # Agent: linkedin_sourcer
+  # Context: [parse_jd] — receives structured search criteria from parse_jd output
+  description: >
+    # TODO (@backend.eng): Fill in full task description from PRD Section 3 / Task source_candidates
+    Using the structured search criteria from parse_jd output, execute a LinkedIn Recruiter
+    search via the linkedin_selenium_tool. Retrieve up to max_results candidate profiles
+    and extract all specified profile fields.
+  expected_output: >
+    # TODO (@backend.eng): Fill in full expected_output from PRD Section 3 / Task source_candidates
+    A valid JSON array of candidate profile objects. No markdown fences.
+    Output saved to: output/source_candidates.json
+  agent: linkedin_sourcer
+  context:
+    - parse_jd
+  output_file: output/source_candidates.json
+  max_iter: 10
+  max_execution_time: 600
+  max_retry_limit: 2
+
+evaluate_candidates:
+  # Task ID: evaluate_candidates
+  # Agent: candidate_evaluator
+  # Context: [parse_jd, source_candidates]
+  # Guardrail: validate_scored_candidate_schema (implemented in guardrails.py by @backend.eng)
+  description: >
+    # TODO (@backend.eng): Fill in full task description from PRD Section 3 / Task evaluate_candidates
+    For each candidate in source_candidates output, evaluate against criteria in parse_jd output.
+    Produce a scored candidate object with match_score (0-100) and per-criterion rationale.
+  expected_output: >
+    # TODO (@backend.eng): Fill in full expected_output from PRD Section 3 / Task evaluate_candidates
+    A valid JSON array of scored candidate objects. No markdown fences.
+    Output saved to: output/evaluate_candidates.json
+  agent: candidate_evaluator
+  context:
+    - parse_jd
+    - source_candidates
+  output_file: output/evaluate_candidates.json
+  guardrail: validate_scored_candidate_schema
+  max_iter: 8
+  max_execution_time: 300
+  max_retry_limit: 2
+
+format_shortlist:
+  # Task ID: format_shortlist
+  # Agent: shortlist_formatter
+  # Context: [evaluate_candidates]
+  # Guardrail: validate_shortlist_headings (implemented in guardrails.py by @backend.eng)
+  description: >
+    # TODO (@backend.eng): Fill in full task description from PRD Section 3 / Task format_shortlist
+    Using the scored candidate list from evaluate_candidates output, produce a ranked
+    Markdown shortlist document following the required heading structure exactly.
+  expected_output: >
+    # TODO (@backend.eng): Fill in full expected_output from PRD Section 3 / Task format_shortlist
+    A valid Markdown file following the required heading structure. No code fences.
+    Output saved to: output/shortlist.md
+  agent: shortlist_formatter
+  context:
+    - evaluate_candidates
+  output_file: output/shortlist.md
+  guardrail: validate_shortlist_headings
+  max_iter: 3
+  max_execution_time: 60
+  max_retry_limit: 2
+  human_input: false

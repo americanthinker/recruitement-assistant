@@ -1,0 +1,46 @@
+# docker-compose.yml
+# Two-service deployment for the Recruitment Assistant (SAD Section 8.1).
+# Services: frontend (Next.js, port 3000) and backend (FastAPI + CrewAI, port 8000).
+#
+# Usage:
+#   1. Copy backend/.env.example to .env and fill in ANTHROPIC_API_KEY and LI_AT.
+#   2. Run: docker compose up --build
+#   3. Access the application at http://localhost:3000
+#
+# Environment:
+#   Secrets are loaded from .env via env_file directive.
+#   .env is gitignored — never commit it to version control.
+#
+# Volumes:
+#   backend/output/ and backend/logs/ are mounted from the host filesystem so that
+#   run artifacts and logs persist across container restarts (SAD Section 8.1).
+#   Both directories are gitignored.
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend/output:/app/output
+      - ./backend/logs:/app/logs
+    # TODO (@integration.eng): Add healthcheck for FastAPI /health endpoint (Epic 4).
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # FastAPI backend base URL — used by Next.js API proxy routes (SAD Section 7.3)
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    # TODO (@integration.eng): Update NEXT_PUBLIC_API_BASE_URL for private cloud deployment (Epic 4).

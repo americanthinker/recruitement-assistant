@@ -216,3 +216,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# =============================================================================
+# Recruitment Assistant — project-specific gitignore entries
+# =============================================================================
+
+# Backend: per-run output artifacts (ephemeral; gitignored per ADR-04 / SAD Section 9.4)
+backend/output/
+
+# Backend: run log JSON files (no PII; gitignored to keep logs out of version control)
+backend/logs/
+
+# Backend: CrewAI storage directory (used only if memory=True is ever enabled; ADR-05)
+backend/.crewai_storage/
+
+# Frontend: Next.js build output
+frontend/.next/
+
+# Frontend: Node.js dependencies (not committed; install via npm ci)
+frontend/node_modules/
